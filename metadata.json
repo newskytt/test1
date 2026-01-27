@@ -1,0 +1,5 @@
+{
+  "name": "ZenAI Todo",
+  "description": "A minimalist, high-performance Todo application enhanced with Gemini AI for task decomposition, priority suggestions, and daily motivation.",
+  "requestFramePermissions": []
+}
