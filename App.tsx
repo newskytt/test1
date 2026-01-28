@@ -25,20 +25,27 @@ const App: React.FC = () => {
     const loadTodos = async () => {
       if (currentUser) {
         try {
+          // 先尝试从本地存储加载数据，确保数据不会丢失
+          const saved = localStorage.getItem(`zen-todos-${currentUser.username}`);
+          if (saved) {
+            setTodos(JSON.parse(saved));
+          }
+          
+          // 然后尝试从后端API获取最新数据
           const response = await fetch(`${API_BASE_URL}/todos/${currentUser.username}`);
           if (response.ok) {
             const data = await response.json();
             setTodos(data.todos || []);
-          } else {
-            // API调用失败，尝试从本地存储加载
-            const saved = localStorage.getItem(`zen-todos-${currentUser.username}`);
-            setTodos(saved ? JSON.parse(saved) : []);
           }
         } catch (error) {
           console.error('Load todos error:', error);
-          // 网络错误，尝试从本地存储加载
+          // 网络错误，从本地存储加载
           const saved = localStorage.getItem(`zen-todos-${currentUser.username}`);
-          setTodos(saved ? JSON.parse(saved) : []);
+          if (saved) {
+            setTodos(JSON.parse(saved));
+          } else {
+            setTodos([]);
+          }
         }
       } else {
         setTodos([]);
@@ -50,7 +57,7 @@ const App: React.FC = () => {
 
   // 保存todos到本地存储作为备份
   useEffect(() => {
-    if (currentUser) {
+    if (currentUser && todos.length > 0) {
       localStorage.setItem(`zen-todos-${currentUser.username}`, JSON.stringify(todos));
     }
   }, [todos, currentUser]);
