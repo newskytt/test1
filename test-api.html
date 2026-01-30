@@ -1,0 +1,56 @@
+// 测试API端点
+async function testAPI(baseUrl) {
+  console.log(`Testing API at: ${baseUrl}`);
+  
+  try {
+    // 测试基础连接
+    const response = await fetch(`${baseUrl}/api`);
+    const data = await response.json();
+    console.log('✓ API Health Check:', data);
+    
+    // 测试登录
+    const loginResponse = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username: 'testuser' })
+    });
+    
+    if (loginResponse.ok) {
+      const loginData = await loginResponse.json();
+      console.log('✓ Login Test:', loginData);
+    } else {
+      console.log('✗ Login Failed:', loginResponse.status, loginResponse.statusText);
+    }
+    
+    // 测试创建待办事项
+    const todoResponse = await fetch(`${baseUrl}/api/todos`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: 'testuser',
+        text: '测试待办事项',
+        priority: '中',
+        category: '测试'
+      })
+    });
+    
+    if (todoResponse.ok) {
+      const todoData = await todoResponse.json();
+      console.log('✓ Create Todo Test:', todoData);
+    } else {
+      console.log('✗ Create Todo Failed:', todoResponse.status, todoResponse.statusText);
+      const errorText = await todoResponse.text();
+      console.log('Error details:', errorText);
+    }
+    
+  } catch (error) {
+    console.error('✗ API Test Failed:', error);
+  }
+}
+
+// 替换为你的实际Vercel URL
+testAPI('https://your-project-name.vercel.app');

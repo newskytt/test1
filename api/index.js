@@ -1,6 +1,6 @@
-const express = require('express');
-const cors = require('cors');
-const { createClient } = require('@supabase/supabase-js');
+import express from 'express';
+import cors from 'cors';
+import { createClient } from '@supabase/supabase-js';
 
 // 创建Express应用
 const app = express();
@@ -9,15 +9,28 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// 检查环境变量
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.error('Missing required environment variables');
+  console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? 'Set' : 'Missing');
+  console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Missing');
+}
+
 // 创建Supabase客户端
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_URL || 'https://placeholder.supabase.co',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
 );
 
 // 测试连接
 app.get('/', (req, res) => {
-  res.json({ message: 'ZenAI Todo Backend is running!' });
+  res.json({ 
+    message: 'ZenAI Todo Backend is running!',
+    env: {
+      supabaseUrl: process.env.SUPABASE_URL ? 'Set' : 'Missing',
+      serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set' : 'Missing'
+    }
+  });
 });
 
 // 用户相关API
@@ -304,4 +317,4 @@ app.get('/api/ai/quote', async (req, res) => {
 });
 
 // Vercel Serverless Function导出
-module.exports = app;
+export default app;
